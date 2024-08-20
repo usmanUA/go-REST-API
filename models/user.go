@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 
 	db "example.com/REST-API/DB"
 	"example.com/REST-API/utils"
@@ -34,7 +33,7 @@ func (u User) Save() error {
 	return err
 }
 
-func (u User) ValidateCredentials() error {
+func (u *User) ValidateCredentials() error {
 	query := "SELECT id, password FROM users WHERE email = ?"
 	row := db.DB.QueryRow(query, u.Email)
 	var retrievedPassword string
@@ -42,7 +41,7 @@ func (u User) ValidateCredentials() error {
 	if err != nil {
 		return errors.New("Invalid Credentials.")
 	}
-	fmt.Println("\033[31mhere\033[0m")
+	//	fmt.Println("\033[31mhere\033[0m")
 	validPassword := utils.CheckPasswordHash(u.Password, retrievedPassword)
 	if !validPassword {
 		return errors.New("Invalid Credentials.")

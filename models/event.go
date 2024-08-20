@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"example.com/REST-API/DB"
@@ -12,12 +13,12 @@ type Event struct {
 	Desctiption string    `binding: "required"`
 	Location    string    `binding: "required"`
 	DateTime    time.Time `binding: "required"`
-	UserID      int
+	UserID      int64
 }
 
 var events = []Event{}
 
-func (e Event) Save() error {
+func (e *Event) Save() error {
 	query := `
 	INSERT INTO events(name, description, location, dateTime, user_id)
 	VALUES (?, ?, ?, ?, ?)`
@@ -89,5 +90,29 @@ func (event Event) Delete() error {
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(event.ID)
+	return err
+}
+
+func (e Event) Register(userID int64) error {
+	query := "INTERT INTO registrations(eventID, user_ID) VALUES (?, ?)"
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+	fmt.Println("\033[31mhere\033[0m")
+	defer stmt.Close()
+	_, err = stmt.Exec(e.ID, userID)
+	return err
+}
+
+func (e Event) CancelRegistration(userID int64) error {
+	query := "DELETE FROM registrations WHERE eventID = ? AND user_ID = ?"
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+	fmt.Println("\033[31mhere\033[0m")
+	defer stmt.Close()
+	_, err = stmt.Exec(e.ID, userID)
 	return err
 }
